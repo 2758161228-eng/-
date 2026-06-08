@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>万能青年旅店 · NFC音乐盒</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a1628 0%, #1a2a4a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: system-ui, 'Segoe UI', 'Noto Sans CJK SC', serif;
+            padding: 20px;
+        }
+        .card {
+            max-width: 400px;
+            width: 100%;
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(4px);
+            border-radius: 32px;
+            padding: 24px 20px 32px;
+            text-align: center;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.3);
+        }
+        .vinyl {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 24px;
+            background: radial-gradient(circle at 30% 35%, #333, #000);
+            border-radius: 50%;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 0 4px rgba(255,215,0,0.3), inset 0 0 0 12px #2a2a2a;
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .vinyl:active { transform: scale(0.97); }
+        .vinyl-center {
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle, #e0b341, #8b691b);
+            border-radius: 50%;
+        }
+        .song-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #f3e7c9;
+            margin-bottom: 8px;
+        }
+        .band {
+            font-size: 14px;
+            color: #c0b28a;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+        }
+        .lyric {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #ddd3c0;
+            background: rgba(0,0,0,0.4);
+            border-radius: 28px;
+            padding: 16px 20px;
+            margin: 20px 0;
+            border-left: 3px solid #dbb42c;
+            text-align: left;
+        }
+        .play-btn {
+            background: #dbb42c;
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin: 12px auto;
+            cursor: pointer;
+            font-size: 28px;
+            color: #1e2a3a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .status {
+            margin-top: 18px;
+            font-size: 12px;
+            color: #afaa8a;
+        }
+        footer {
+            margin-top: 20px;
+            font-size: 10px;
+            color: #5e5a48;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="vinyl" id="vinylDisc">
+        <div class="vinyl-center"></div>
+    </div>
+    <div class="song-title" id="songTitle">万能青年旅店</div>
+    <div class="band" id="band">触碰NFC · 小号响起</div>
+    <div class="lyric" id="lyric">“ 站在能分割世界的桥 ”</div>
+    <button class="play-btn" id="playBtn">▶</button>
+    <div class="status" id="statusMsg">准备就绪</div>
+    <footer>NFC 音乐感应 · 万能青年旅店</footer>
+</div>
+
+<script>
+    // 歌曲列表：编号 -> { 文件名, 歌名, 歌词 }
+    const songs = {
+        1: { file: "01.mp3", title: "不万能的喜剧", lyric: "喜剧 不万能 / 观众 是暴君 / 演员 是奴隶" },
+        2: { file: "02.mp3", title: "大石碎胸口", lyric: "渔王还想 继续做渔王 / 而海港已经 不知去向" },
+        3: { file: "03.mp3", title: "狗尿馆", lyric: "谁用乌黑的砖石 / 围住发光的河水" },
+        4: { file: "04.mp3", title: "揪心的玩笑与漫长的白日梦", lyric: "是谁来自山川湖海 / 却囿于昼夜 厨房与爱" },
+        5: { file: "05.mp3", title: "秦皇岛", lyric: "站在能分割世界的桥 / 还是看不清 在那些时刻 / 遮蔽我们 黑暗的心 究竟是什么" },
+        6: { file: "06.mp3", title: "杀死那个石家庄人", lyric: "如此生活三十年 / 直到大厦崩塌" },
+        7: { file: "07.mp3", title: "十万嬉皮", lyric: "大梦一场的董二千先生 / 推开窗户 举起望远镜 / 眼底映出 一片浓烟" },
+        8: { file: "08.mp3", title: "洋鸟消夏录", lyric: "山谷里 住着 洋鸟 / 消夏 的 秘语" },
+        9: { file: "09.mp3", title: "早", lyric: "清晨 早 阳光 照 / 鸟 叫 露水 凝" },
+        10: { file: "10.mp3", title: "泥河", lyric: "开采 我的血肉的火光 / 推动 我的尸骸的列车" },
+        11: { file: "11.mp3", title: "平等云雾", lyric: "云雾 弥漫 在 城市 / 平等 地 遮住 每个人" },
+        12: { file: "12.mp3", title: "採石", lyric: "炸裂 我的 岩石 / 填平 我的 山谷" },
+        13: { file: "13.mp3", title: "山雀", lyric: "自然赠予你 树冠 微风 肩头的暴雨" },
+        14: { file: "14.mp3", title: "绕越", lyric: "音乐响起 绕过前人的悲喜" },
+        15: { file: "15.mp3", title: "河北墨麒麟", lyric: "听 世间 破晓之声 / 墨麒麟 在 云端 睁眼" },
+        16: { file: "16.mp3", title: "郊眠寺", lyric: "郊外 安眠 的 寺庙 / 钟声 渗入 岩石" }
+    };
+
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    let currentSongId = null;
+    let audio = null;
+    let isPlaying = false;
+
+    const playBtn = document.getElementById('playBtn');
+    const vinylDisc = document.getElementById('vinylDisc');
+    const statusEl = document.getElementById('statusMsg');
+    const songTitleEl = document.getElementById('songTitle');
+    const lyricEl = document.getElementById('lyric');
+    const bandEl = document.getElementById('band');
+
+    function updateUI(songId) {
+        const song = songs[songId];
+        if (song) {
+            songTitleEl.innerText = song.title;
+            lyricEl.innerText = "“ " + song.lyric + " ”";
+            bandEl.innerText = "万能青年旅店";
+        } else {
+            songTitleEl.innerText = "未知歌曲";
+            lyricEl.innerText = "请检查卡片编号";
+            bandEl.innerText = "万能青年旅店";
+        }
+    }
+
+    function stopAndReset() {
+        if (audio) {
+            audio.pause();
+            audio = null;
+        }
+        isPlaying = false;
+        playBtn.innerHTML = "▶";
+        vinylDisc.classList.remove('spin');
+    }
+
+    function playSong(songId) {
+        const song = songs[songId];
+        if (!song) {
+            statusEl.innerText = "❌ 未找到对应的歌曲";
+            return;
+        }
+
+        stopAndReset();
+
+        audio = new Audio();
+        audio.src = song.file;
+        audio.preload = "auto";
+        audio.oncanplaythrough = () => { statusEl.innerText = "🎺 正在播放 " + song.title; };
+        audio.onplaying = () => {
+            isPlaying = true;
+            playBtn.innerHTML = "⏸";
+            vinylDisc.classList.add('spin');
+            statusEl.innerText = "🎶 聆听 · 万青";
+        };
+        audio.onended = () => {
+            isPlaying = false;
+            playBtn.innerHTML = "▶";
+            vinylDisc.classList.remove('spin');
+            statusEl.innerText = "播放结束 · 再次触碰卡片";
+            audio = null;
+        };
+        audio.onerror = () => {
+            statusEl.innerText = "⚠️ 歌曲文件不存在，请检查 " + song.file;
+            audio = null;
+        };
+
+        audio.play().catch(e => {
+            statusEl.innerText = "点击按钮播放 " + song.title;
+        });
+    }
+
+    function togglePlay() {
+        if (!currentSongId) {
+            statusEl.innerText = "请先触碰NFC卡片";
+            return;
+        }
+        if (isPlaying) {
+            audio.pause();
+        } else {
+            if (!audio) {
+                playSong(currentSongId);
+            } else {
+                audio.play().catch(() => {});
+            }
+        }
+    }
+
+    // 页面加载
+    const param = getQueryParam('song');
+    if (param && songs[param]) {
+        currentSongId = param;
+        updateUI(currentSongId);
+        setTimeout(() => {
+            playSong(currentSongId);
+        }, 100);
+    } else {
+        songTitleEl.innerText = "触碰NFC卡片";
+        lyricEl.innerText = "将NFC卡片靠近手机背部";
+        bandEl.innerText = "万能青年旅店 · 音乐感应";
+        statusEl.innerText = "请用卡片触碰手机";
+    }
+
+    playBtn.addEventListener('click', togglePlay);
+    vinylDisc.addEventListener('click', togglePlay);
+</script>
+</body>
+</html>
