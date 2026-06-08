@@ -16,22 +16,36 @@
             padding: 20px;
         }
         .card {
-            max-width: 400px;
+            max-width: 500px;
             width: 100%;
             background: rgba(255,255,255,0.08);
             backdrop-filter: blur(4px);
             border-radius: 32px;
-            padding: 24px 20px 32px;
+            padding: 20px 20px 30px;
             text-align: center;
             box-shadow: 0 25px 45px rgba(0,0,0,0.3);
         }
+        .cover {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 15px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            background: #1e2a3a;
+        }
+        .cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
         .vinyl {
-            width: 180px;
-            height: 180px;
-            margin: 0 auto 24px;
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 15px;
             background: radial-gradient(circle at 30% 35%, #333, #000);
             border-radius: 50%;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 0 4px rgba(255,215,0,0.3), inset 0 0 0 12px #2a2a2a;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5), inset 0 0 0 4px rgba(255,215,0,0.3), inset 0 0 0 10px #2a2a2a;
             cursor: pointer;
             transition: transform 0.2s;
             display: flex;
@@ -40,33 +54,55 @@
         }
         .vinyl:active { transform: scale(0.97); }
         .vinyl-center {
-            width: 40px;
-            height: 40px;
+            width: 30px;
+            height: 30px;
             background: radial-gradient(circle, #e0b341, #8b691b);
             border-radius: 50%;
         }
         .song-title {
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 600;
             color: #f3e7c9;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
         }
         .band {
             font-size: 14px;
             color: #c0b28a;
-            letter-spacing: 3px;
-            margin-bottom: 20px;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
         }
-        .lyric {
-            font-size: 15px;
-            line-height: 1.7;
-            color: #ddd3c0;
-            background: rgba(0,0,0,0.4);
-            border-radius: 28px;
-            padding: 16px 20px;
-            margin: 20px 0;
+        .message {
+            background: rgba(0,0,0,0.5);
+            border-radius: 20px;
+            padding: 8px 12px;
+            margin: 10px 15px;
+            font-size: 13px;
+            color: #ffecb3;
+            font-style: italic;
             border-left: 3px solid #dbb42c;
-            text-align: left;
+        }
+        .lyric-container {
+            background: rgba(0,0,0,0.5);
+            border-radius: 20px;
+            padding: 12px;
+            margin: 10px 0;
+            height: 220px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+        .lyric-line {
+            font-size: 14px;
+            color: #aaa;
+            text-align: center;
+            padding: 6px 0;
+            transition: all 0.2s ease;
+            line-height: 1.5;
+        }
+        .lyric-line.active {
+            color: #dbb42c;
+            font-size: 16px;
+            font-weight: bold;
+            text-shadow: 0 0 2px #ffd700;
         }
         .play-btn {
             background: #dbb42c;
@@ -74,21 +110,23 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            margin: 12px auto;
+            margin: 10px auto;
             cursor: pointer;
             font-size: 28px;
             color: #1e2a3a;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: 0.1s;
         }
+        .play-btn:active { transform: scale(0.96); }
         .status {
-            margin-top: 18px;
+            margin-top: 12px;
             font-size: 12px;
             color: #afaa8a;
         }
         footer {
-            margin-top: 20px;
+            margin-top: 16px;
             font-size: 10px;
             color: #5e5a48;
         }
@@ -96,145 +134,249 @@
 </head>
 <body>
 <div class="card">
+    <div class="cover" id="coverContainer">
+        <img id="coverImg" src="cover.jpg" alt="cover" onerror="this.src='https://placehold.co/200x200/1e2a3a/dbb42c?text=万能青年旅店'">
+    </div>
     <div class="vinyl" id="vinylDisc">
         <div class="vinyl-center"></div>
     </div>
     <div class="song-title" id="songTitle">万能青年旅店</div>
     <div class="band" id="band">触碰NFC · 小号响起</div>
-    <div class="lyric" id="lyric">“ 站在能分割世界的桥 ”</div>
+    <div class="message" id="messageBox">加载中...</div>
+    <div class="lyric-container" id="lyricContainer">
+        <div class="lyric-line">准备就绪</div>
+    </div>
     <button class="play-btn" id="playBtn">▶</button>
-    <div class="status" id="statusMsg">准备就绪</div>
+    <div class="status" id="statusMsg">触碰卡片或点击唱片</div>
     <footer>NFC 音乐感应 · 万能青年旅店</footer>
 </div>
 
 <script>
-    // 歌曲列表：编号 -> { 文件名, 歌名, 歌词 }
+    // ============================================================
+    // 歌曲列表（共17首）
+    // 修改 message 字段即可定制个性化留言
+    // ============================================================
     const songs = {
-        1: { file: "01.mp3", title: "不万能的喜剧", lyric: "喜剧 不万能 / 观众 是暴君 / 演员 是奴隶" },
-        2: { file: "02.mp3", title: "大石碎胸口", lyric: "渔王还想 继续做渔王 / 而海港已经 不知去向" },
-        3: { file: "03.mp3", title: "狗尿馆", lyric: "谁用乌黑的砖石 / 围住发光的河水" },
-        4: { file: "04.mp3", title: "揪心的玩笑与漫长的白日梦", lyric: "是谁来自山川湖海 / 却囿于昼夜 厨房与爱" },
-        5: { file: "05.mp3", title: "秦皇岛", lyric: "站在能分割世界的桥 / 还是看不清 在那些时刻 / 遮蔽我们 黑暗的心 究竟是什么" },
-        6: { file: "06.mp3", title: "杀死那个石家庄人", lyric: "如此生活三十年 / 直到大厦崩塌" },
-        7: { file: "07.mp3", title: "十万嬉皮", lyric: "大梦一场的董二千先生 / 推开窗户 举起望远镜 / 眼底映出 一片浓烟" },
-        8: { file: "08.mp3", title: "洋鸟消夏录", lyric: "山谷里 住着 洋鸟 / 消夏 的 秘语" },
-        9: { file: "09.mp3", title: "早", lyric: "清晨 早 阳光 照 / 鸟 叫 露水 凝" },
-        10: { file: "10.mp3", title: "泥河", lyric: "开采 我的血肉的火光 / 推动 我的尸骸的列车" },
-        11: { file: "11.mp3", title: "平等云雾", lyric: "云雾 弥漫 在 城市 / 平等 地 遮住 每个人" },
-        12: { file: "12.mp3", title: "採石", lyric: "炸裂 我的 岩石 / 填平 我的 山谷" },
-        13: { file: "13.mp3", title: "山雀", lyric: "自然赠予你 树冠 微风 肩头的暴雨" },
-        14: { file: "14.mp3", title: "绕越", lyric: "音乐响起 绕过前人的悲喜" },
-        15: { file: "15.mp3", title: "郊眠寺", lyric: "郊外 安眠 的 寺庙 / 钟声 渗入 岩石" }
+        1: { file: "01.mp3", title: "不万能的喜剧", lyricFile: "01.lrc", cover: "01.jpg", message: "送给[朋友名字]，愿你的喜剧永远不万能" },
+        2: { file: "02.mp3", title: "大石碎胸口", lyricFile: "02.lrc", cover: "02.jpg", message: "胸口碎大石，友谊坚如石" },
+        3: { file: "03.mp3", title: "狗尿馆", lyricFile: "03.lrc", cover: "03.jpg", message: "狗尿馆里也有诗意" },
+        4: { file: "04.mp3", title: "揪心的玩笑与漫长的白日梦", lyricFile: "04.lrc", cover: "04.jpg", message: "来自山川湖海，别困于昼夜厨房" },
+        5: { file: "05.mp3", title: "秦皇岛", lyricFile: "05.lrc", cover: "05.jpg", message: "站在能分割世界的桥，听见小号" },
+        6: { file: "06.mp3", title: "杀死那个石家庄人", lyricFile: "06.lrc", cover: "06.jpg", message: "大厦崩塌后，还有我们在" },
+        7: { file: "07.mp3", title: "十万嬉皮", lyricFile: "07.lrc", cover: "07.jpg", message: "大梦一场，推开窗户" },
+        8: { file: "08.mp3", title: "洋鸟消夏录", lyricFile: "08.lrc", cover: "08.jpg", message: "山谷里的秘语" },
+        9: { file: "09.mp3", title: "早", lyricFile: "09.lrc", cover: "09.jpg", message: "清晨的阳光照" },
+        10: { file: "10.mp3", title: "泥河", lyricFile: "10.lrc", cover: "10.jpg", message: "泥河奔流，生命不息" },
+        11: { file: "11.mp3", title: "平等云雾", lyricFile: "11.lrc", cover: "11.jpg", message: "云雾平等笼罩每一个人" },
+        12: { file: "12.mp3", title: "采石", lyricFile: "12.lrc", cover: "12.jpg", message: "炸裂岩石，填平山谷" },
+        13: { file: "13.mp3", title: "山雀", lyricFile: "13.lrc", cover: "13.jpg", message: "树冠微风，肩头暴雨" },
+        14: { file: "14.mp3", title: "绕越", lyricFile: "14.lrc", cover: "14.jpg", message: "绕过前人的悲喜" },
+        15: { file: "15.mp3", title: "郊眠寺", lyricFile: "15.lrc", cover: "15.jpg", message: "郊外安眠的钟声" },
+        16: { file: "16.mp3", title: "河北墨麒麟", lyricFile: "16.lrc", cover: "16.jpg", message: "墨麒麟在云端睁眼，祝你永远年轻" },
+        17: { file: "17.mp3", title: "张洲", lyricFile: "17.lrc", cover: "17.jpg", message: "献给张洲，愿你自由如风" }
     };
 
-    function getQueryParam(param) {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(param);
+    const defaultCover = "cover.jpg";
+
+    function getSongId() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('song');
     }
 
     let currentSongId = null;
     let audio = null;
     let isPlaying = false;
+    let currentLyrics = [];
+    let lyricsTimer = null;
 
+    const coverImg = document.getElementById('coverImg');
+    const songTitleEl = document.getElementById('songTitle');
+    const bandEl = document.getElementById('band');
+    const messageBox = document.getElementById('messageBox');
+    const lyricContainer = document.getElementById('lyricContainer');
     const playBtn = document.getElementById('playBtn');
     const vinylDisc = document.getElementById('vinylDisc');
     const statusEl = document.getElementById('statusMsg');
-    const songTitleEl = document.getElementById('songTitle');
-    const lyricEl = document.getElementById('lyric');
-    const bandEl = document.getElementById('band');
 
-    function updateUI(songId) {
-        const song = songs[songId];
-        if (song) {
-            songTitleEl.innerText = song.title;
-            lyricEl.innerText = "“ " + song.lyric + " ”";
-            bandEl.innerText = "万能青年旅店";
-        } else {
-            songTitleEl.innerText = "未知歌曲";
-            lyricEl.innerText = "请检查卡片编号";
-            bandEl.innerText = "万能青年旅店";
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function parseLrc(lrcContent) {
+        const lyrics = [];
+        const lines = lrcContent.split(/\r?\n/);
+        const timeRegex = /\[(\d{2}):(\d{2})(?:\.|:)(\d{2,3})\]/;
+        for (let line of lines) {
+            const match = line.match(timeRegex);
+            if (match) {
+                const minutes = parseInt(match[1], 10);
+                const seconds = parseInt(match[2], 10);
+                let millis = parseInt(match[3], 10);
+                if (millis < 100) millis *= 10;
+                const time = minutes * 60 + seconds + millis / 1000;
+                const text = line.substring(line.lastIndexOf(']') + 1).trim();
+                if (text) lyrics.push({ time, text });
+            }
+        }
+        lyrics.sort((a, b) => a.time - b.time);
+        return lyrics;
+    }
+
+    async function loadLyrics(lyricFile) {
+        if (!lyricFile) return false;
+        try {
+            const resp = await fetch(lyricFile);
+            if (!resp.ok) throw new Error();
+            const lrcText = await resp.text();
+            currentLyrics = parseLrc(lrcText);
+            renderLyrics(-1);
+            return true;
+        } catch (e) {
+            lyricContainer.innerHTML = '<div class="lyric-line">暂无滚动歌词</div>';
+            currentLyrics = [];
+            return false;
         }
     }
 
-    function stopAndReset() {
+    function renderLyrics(activeIndex) {
+        if (!currentLyrics.length) {
+            lyricContainer.innerHTML = '<div class="lyric-line">暂无滚动歌词</div>';
+            return;
+        }
+        let html = '';
+        for (let i = 0; i < currentLyrics.length; i++) {
+            const activeClass = (i === activeIndex) ? 'active' : '';
+            html += `<div class="lyric-line ${activeClass}" data-index="${i}">${escapeHtml(currentLyrics[i].text)}</div>`;
+        }
+        lyricContainer.innerHTML = html;
+        if (activeIndex >= 0) {
+            const activeEl = lyricContainer.querySelector(`.lyric-line[data-index="${activeIndex}"]`);
+            if (activeEl) activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    function updateLyricsHighlight(currentTime) {
+        if (!currentLyrics.length) return;
+        let activeIndex = -1;
+        for (let i = 0; i < currentLyrics.length; i++) {
+            if (currentTime >= currentLyrics[i].time) activeIndex = i;
+            else break;
+        }
+        const currentActive = lyricContainer.querySelector('.lyric-line.active');
+        const currentIdx = currentActive ? parseInt(currentActive.dataset.index, 10) : -1;
+        if (activeIndex !== currentIdx) renderLyrics(activeIndex);
+    }
+
+    function stopLyricsTimer() {
+        if (lyricsTimer) { clearInterval(lyricsTimer); lyricsTimer = null; }
+    }
+    function startLyricsTimer() {
+        if (lyricsTimer) stopLyricsTimer();
+        lyricsTimer = setInterval(() => {
+            if (audio && !audio.paused && currentLyrics.length) {
+                updateLyricsHighlight(audio.currentTime);
+            }
+        }, 100);
+    }
+
+    async function loadSongInfo(songId) {
+        const song = songs[songId];
+        if (!song) {
+            songTitleEl.innerText = "未知歌曲";
+            messageBox.innerText = "请检查卡片编号";
+            lyricContainer.innerHTML = '<div class="lyric-line">歌曲不存在</div>';
+            return false;
+        }
+        songTitleEl.innerText = song.title;
+        bandEl.innerText = "万能青年旅店";
+        messageBox.innerText = song.message || "送给独一无二的你";
+        const coverUrl = song.cover ? song.cover : defaultCover;
+        coverImg.src = coverUrl;
+        coverImg.onerror = () => { coverImg.src = defaultCover; };
+        if (song.lyricFile) await loadLyrics(song.lyricFile);
+        else { lyricContainer.innerHTML = '<div class="lyric-line">暂无滚动歌词</div>'; currentLyrics = []; }
+        return true;
+    }
+
+    async function playSong(songId) {
+        const song = songs[songId];
+        if (!song) return;
         if (audio) {
             audio.pause();
             audio = null;
         }
-        isPlaying = false;
-        playBtn.innerHTML = "▶";
-        vinylDisc.classList.remove('spin');
-    }
-
-    function playSong(songId) {
-        const song = songs[songId];
-        if (!song) {
-            statusEl.innerText = "❌ 未找到对应的歌曲";
-            return;
-        }
-
-        stopAndReset();
-
-        audio = new Audio();
-        audio.src = song.file;
+        stopLyricsTimer();
+        audio = new Audio(song.file);
         audio.preload = "auto";
-        audio.oncanplaythrough = () => { statusEl.innerText = "🎺 正在播放 " + song.title; };
         audio.onplaying = () => {
             isPlaying = true;
             playBtn.innerHTML = "⏸";
             vinylDisc.classList.add('spin');
-            statusEl.innerText = "🎶 聆听 · 万青";
+            statusEl.innerText = `🎶 正在播放 ${song.title}`;
+            startLyricsTimer();
+        };
+        audio.onpause = () => {
+            isPlaying = false;
+            playBtn.innerHTML = "▶";
+            vinylDisc.classList.remove('spin');
+            statusEl.innerText = `已暂停 · 点击继续`;
+            stopLyricsTimer();
         };
         audio.onended = () => {
             isPlaying = false;
             playBtn.innerHTML = "▶";
             vinylDisc.classList.remove('spin');
-            statusEl.innerText = "播放结束 · 再次触碰卡片";
-            audio = null;
+            statusEl.innerText = `播放结束 · 再次触碰卡片`;
+            stopLyricsTimer();
+            renderLyrics(-1);
         };
         audio.onerror = () => {
-            statusEl.innerText = "⚠️ 歌曲文件不存在，请检查 " + song.file;
-            audio = null;
+            statusEl.innerText = `❌ 无法播放 ${song.title}，请检查文件`;
         };
-
-        audio.play().catch(e => {
-            statusEl.innerText = "点击按钮播放 " + song.title;
-        });
+        try {
+            await audio.play();
+        } catch (err) {
+            statusEl.innerText = `点击播放按钮开始聆听`;
+        }
     }
 
-    function togglePlay() {
+    function togglePlayPause() {
         if (!currentSongId) {
             statusEl.innerText = "请先触碰NFC卡片";
+            return;
+        }
+        if (!audio) {
+            playSong(currentSongId);
             return;
         }
         if (isPlaying) {
             audio.pause();
         } else {
-            if (!audio) {
-                playSong(currentSongId);
-            } else {
-                audio.play().catch(() => {});
-            }
+            if (audio.ended) audio.currentTime = 0;
+            audio.play().catch(e => statusEl.innerText = "播放失败，请重试");
         }
     }
 
-    // 页面加载
-    const param = getQueryParam('song');
-    if (param && songs[param]) {
-        currentSongId = param;
-        updateUI(currentSongId);
-        setTimeout(() => {
-            playSong(currentSongId);
-        }, 100);
-    } else {
-        songTitleEl.innerText = "触碰NFC卡片";
-        lyricEl.innerText = "将NFC卡片靠近手机背部";
-        bandEl.innerText = "万能青年旅店 · 音乐感应";
-        statusEl.innerText = "请用卡片触碰手机";
+    async function init() {
+        const songParam = getSongId();
+        if (songParam && songs[songParam]) {
+            currentSongId = songParam;
+            await loadSongInfo(currentSongId);
+            await playSong(currentSongId);
+        } else {
+            songTitleEl.innerText = "触碰NFC卡片";
+            messageBox.innerText = "将卡片靠近手机背部";
+            lyricContainer.innerHTML = '<div class="lyric-line">等待卡片...</div>';
+            statusEl.innerText = "请用NFC卡片触碰手机";
+        }
     }
 
-    playBtn.addEventListener('click', togglePlay);
-    vinylDisc.addEventListener('click', togglePlay);
+    playBtn.addEventListener('click', togglePlayPause);
+    vinylDisc.addEventListener('click', togglePlayPause);
+    init();
 </script>
 </body>
 </html>
