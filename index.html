@@ -1,3 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>万能青年旅店 - 专属留声机</title>
+    <style>
+        :root {
+            --gold: #d4af37;
+            --gold-glow: rgba(212, 175, 55, 0.6);
+            --bg-color: #121212;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 50% 50%, #2a2a2a 0%, #121212 100%);
+            color: #eee;
+            font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 玻璃拟态卡片 */
+        .player-card {
+            margin-top: 40px;
+            width: 90%;
+            max-width: 400px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
             border-radius: 20px;
             padding: 30px 20px;
             display: flex;
@@ -189,7 +227,6 @@
 <body>
 
     <div class="player-card">
-        <!-- 黑胶封面区 -->
         <div class="record-container" id="recordContainer">
             <div class="tonearm"></div>
             <div class="record" id="record">
@@ -206,7 +243,6 @@
             <div class="progress-fill" id="progressFill"></div>
         </div>
 
-        <!-- 歌词区 -->
         <div class="lyrics-container">
             <div class="lyrics-scroll" id="lyricsScroll">
                 <div class="lyric-line active">请点击“奏”开始聆听</div>
@@ -215,7 +251,7 @@
     </div>
 
     <script>
-        // --- 1. 歌曲数据配置（完美适配你的 GitHub 实际文件名：音频带0，歌词/图片不带0） ---
+        // --- 1. 歌曲数据配置（完美适配你的实际文件名：音频带0，歌词/图片不带0） ---
         const songs = {
             1: { title: "不万能的喜剧", file: "01.mp3", lrc: "1.lrc", cover: "1.jpg", msg: "致小田，祝你在没有方向的时代，找到自己的喜剧。" },
             2: { title: "大石碎胸口", file: "02.mp3", lrc: "2.lrc", cover: "2.jpg", msg: "敬一杯酒，给这漫长的白日梦。" },
@@ -238,7 +274,13 @@
 
         // --- 2. 初始化逻辑 ---
         const urlParams = new URLSearchParams(window.location.search);
-        const songId = urlParams.get('song');
+        let songId = urlParams.get('song');
+        
+        // 盲盒随机播放逻辑：如果没有指定 song 参数，则在 1~17 中随机选一首
+        if (!songId || !songs[songId]) {
+            const keys = Object.keys(songs);
+            songId = keys[Math.floor(Math.random() * keys.length)];
+        }
         const songData = songs[songId];
 
         const audio = new Audio();
@@ -257,10 +299,6 @@
             document.getElementById('coverImg').src = songData.cover;
             audio.src = songData.file;
             loadLyrics(songData.lrc);
-        } else {
-            document.getElementById('songTitle').innerText = "未找到歌曲";
-            document.getElementById('songMessage').innerText = "请检查 NFC 卡片链接是否正确";
-            playBtn.style.display = 'none';
         }
 
         // --- 3. 播放控制 ---
@@ -314,8 +352,7 @@
         }
 
         function parseLrc(text) {
-            const lines = text.split('
-');
+            const lines = text.split('\n');
             const timeReg = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
             lyricsArray = [];
 
@@ -377,7 +414,6 @@
                 const lineHeight = activeLine.clientHeight;
                 
                 // 核心黄金公式：让歌词滚动的目标位置 = (视口正中间) - (当前歌词距离顶部的绝对高度) - (当前歌词自身高度的一半)
-                // 这样无论歌词是一行、两行折行，还是开头带歌曲信息，都能实现像素级的丝滑死死居中！
                 const offset = (containerHeight / 2) - lineTop - (lineHeight / 2);
                 lyricsScroll.style.transform = `translateY(${offset}px)`;
             }
