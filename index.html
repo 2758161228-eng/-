@@ -1,41 +1,3 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>万能青年旅店 - 专属留声机</title>
-    <style>
-        :root {
-            --gold: #d4af37;
-            --gold-glow: rgba(212, 175, 55, 0.6);
-            --bg-color: #121212;
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-color);
-            background-image: radial-gradient(circle at 50% 50%, #2a2a2a 0%, #121212 100%);
-            color: #eee;
-            font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            overflow: hidden;
-        }
-
-        /* 玻璃拟态卡片 */
-        .player-card {
-            margin-top: 40px;
-            width: 90%;
-            max-width: 400px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
             border-radius: 20px;
             padding: 30px 20px;
             display: flex;
@@ -63,7 +25,6 @@
             justify-content: center;
             align-items: center;
             position: relative;
-            /* 旋转动画 */
             animation: spin 8s linear infinite;
             animation-play-state: paused; 
         }
@@ -100,7 +61,7 @@
             z-index: 2;
         }
 
-        /* 唱片机唱臂(装饰) */
+        /* 唱片机唱臂 */
         .tonearm {
             position: absolute;
             top: -10px;
@@ -168,42 +129,44 @@
             color: #fff;
         }
 
-        /* 滚动歌词区域 */
+        /* 滚动歌词区域 (高度稍微调大给足呼吸感) */
         .lyrics-container {
             width: 100%;
-            height: 150px;
+            height: 160px;
             overflow: hidden;
             position: relative;
-            mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%);
-            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0%, black 25%, black 75%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 25%, black 75%, transparent 100%);
         }
 
         .lyrics-scroll {
             position: absolute;
-            top: 60px; /* 初始居中偏置 */
+            top: 0;
+            left: 0;
             width: 100%;
-            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             text-align: center;
         }
 
         .lyric-line {
-            padding: 8px 0;
+            padding: 10px 15px;
             font-size: 14px;
-            color: rgba(255, 255, 255, 0.4);
+            color: rgba(255, 255, 255, 0.35);
             transition: all 0.3s ease;
-            min-height: 20px;
+            line-height: 1.4;
+            box-sizing: border-box;
         }
 
-        /* 当前歌词高亮发光特效 */
+        /* 智能行高亮发光特效 */
         .lyric-line.active {
             color: var(--gold);
-            font-size: 18px;
+            font-size: 17px;
             font-weight: bold;
-            text-shadow: 0 0 10px var(--gold-glow), 0 0 20px var(--gold-glow);
-            transform: scale(1.05);
+            text-shadow: 0 0 8px var(--gold-glow), 0 0 15px var(--gold-glow);
+            transform: scale(1.02);
         }
 
-        /* 底部进度条 (极简) */
+        /* 底部进度条 */
         .progress-bar {
             width: 80%;
             height: 2px;
@@ -230,14 +193,13 @@
         <div class="record-container" id="recordContainer">
             <div class="tonearm"></div>
             <div class="record" id="record">
-                <img src="" alt="cover" class="cover-img" id="coverImg" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDgwIDgwIj48Y2lyY2xlIGN4PSI0MCIgY3k9IjQwIiByPSI0MCIgZmlsbD0iIzMzMyIvPjx0ZXh0IHg9IjQwIiB5PSI0NSIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+5peg5bCB6Z2iPC90ZXh0Pjwvc3ZnPg=='">
+                <img src="" alt="cover" class="cover-img" id="coverImg" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDgwIDgwIj48Y2lyY2xlIGN4PSI0MCIgY3k9IjQwIiByPSI0MCIgZmlsbD0iIzMzMycvPjx0ZXh0IHg9IjQwIiB5PSI0NSIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+5peg5bCB6Z2iPC90ZXh0Pjwvc3ZnPg=='">
             </div>
         </div>
 
         <div class="song-title" id="songTitle">获取中...</div>
         <div class="message" id="songMessage"></div>
 
-        <!-- 文艺播放按钮：奏 / 止 -->
         <div class="play-btn" id="playBtn">奏</div>
 
         <div class="progress-bar">
@@ -253,17 +215,17 @@
     </div>
 
     <script>
-        // --- 1. 歌曲数据配置 ---
+        // --- 1. 歌曲数据配置（完美适配你的 GitHub 实际文件名：音频带0，歌词/图片不带0） ---
         const songs = {
-            1: { title: "不万能的喜剧", file: "01.mp3", lrc: "01.lrc", cover: "01.jpg", msg: "田恒搏，生日快乐" },
-            2: { title: "大石碎胸口", file: "02.mp3", lrc: "02.lrc", cover: "02.jpg", msg: "敬一杯酒，给这漫长的白日梦。" },
-            3: { title: "狗尿馆", file: "03.mp3", lrc: "03.lrc", cover: "03.jpg", msg: "荒诞与真实交织的角落。" },
-            4: { title: "揪心的玩笑与漫长的白日梦", file: "04.mp3", lrc: "04.lrc", cover: "04.jpg", msg: "是谁来自山川湖海，却囿于昼夜，厨房与爱。" },
-            5: { title: "秦皇岛", file: "05.mp3", lrc: "05.lrc", cover: "05.jpg", msg: "那个能照亮黑暗的号角声。" },
-            6: { title: "杀死那个石家庄人", file: "06.mp3", lrc: "06.lrc", cover: "06.jpg", msg: "云层深处的黑暗，如此平静。" },
-            7: { title: "十万嬉皮", file: "07.mp3", lrc: "07.lrc", cover: "07.jpg", msg: "大梦一场的董二千先生。" },
-            8: { title: "洋鸟消夏录", file: "08.mp3", lrc: "08.lrc", cover: "08.jpg", msg: "属于夏天的漫长与消散。" },
-            9: { title: "早", file: "09.mp3", lrc: "09.lrc", cover: "09.jpg", msg: "清晨的第一声问候。" },
+            1: { title: "不万能的喜剧", file: "01.mp3", lrc: "1.lrc", cover: "1.jpg", msg: "致小田，祝你在没有方向的时代，找到自己的喜剧。" },
+            2: { title: "大石碎胸口", file: "02.mp3", lrc: "2.lrc", cover: "2.jpg", msg: "敬一杯酒，给这漫长的白日梦。" },
+            3: { title: "狗尿馆", file: "03.mp3", lrc: "3.lrc", cover: "3.jpg", msg: "荒诞与真实交织的角落。" },
+            4: { title: "揪心的玩笑与漫长的白日梦", file: "04.mp3", lrc: "4.lrc", cover: "4.jpg", msg: "是谁来自山川湖海，却囿于昼夜，厨房与爱。" },
+            5: { title: "秦皇岛", file: "05.mp3", lrc: "05.lrc", cover: "5.jpg", msg: "那个能照亮黑暗的号角声。" },
+            6: { title: "杀死那个石家庄人", file: "06.mp3", lrc: "6.lrc", cover: "6.jpg", msg: "云层深处的黑暗，如此平静。" },
+            7: { title: "十万嬉皮", file: "07.mp3", lrc: "7.lrc", cover: "7.jpg", msg: "大梦一场的董二千先生。" },
+            8: { title: "洋鸟消夏录", file: "08.mp3", lrc: "8.lrc", cover: "8.jpg", msg: "属于夏天的漫长与消散。" },
+            9: { title: "早", file: "09.mp3", lrc: "9.lrc", cover: "9.jpg", msg: "清晨的第一声问候。" },
             10: { title: "泥河", file: "10.mp3", lrc: "10.lrc", cover: "10.jpg", msg: "渤海洗不净的，泥河来承担。" },
             11: { title: "平等云雾", file: "11.mp3", lrc: "11.lrc", cover: "11.jpg", msg: "众生都在这云雾之中。" },
             12: { title: "采石", file: "12.mp3", lrc: "12.lrc", cover: "12.jpg", msg: "捶打石头，捶打时间。" },
@@ -308,30 +270,27 @@
             if (audio.paused) {
                 audio.play();
                 isPlaying = true;
-                playBtn.innerText = "止"; // 文艺的暂停符号
+                playBtn.innerText = "止"; 
                 record.classList.add('playing');
                 recordContainer.classList.add('playing');
             } else {
                 audio.pause();
                 isPlaying = false;
-                playBtn.innerText = "奏"; // 文艺的播放符号
+                playBtn.innerText = "奏"; 
                 record.classList.remove('playing');
                 recordContainer.classList.remove('playing');
             }
         });
 
-        // 歌曲结束重置
         audio.addEventListener('ended', () => {
             isPlaying = false;
             playBtn.innerText = "奏";
             record.classList.remove('playing');
             recordContainer.classList.remove('playing');
             audio.currentTime = 0;
-            lyricsScroll.style.transform = `translateY(0px)`;
             highlightLyric(0);
         });
 
-        // 进度条与歌词同步
         audio.addEventListener('timeupdate', () => {
             if (audio.duration) {
                 const percent = (audio.currentTime / audio.duration) * 100;
@@ -343,7 +302,6 @@
         // --- 4. 歌词处理 ---
         async function loadLyrics(filename) {
             try {
-                // 尝试获取本地 LRC 文件
                 const response = await fetch(filename);
                 if (!response.ok) throw new Error('无歌词文件');
                 const text = await response.text();
@@ -356,7 +314,8 @@
         }
 
         function parseLrc(text) {
-            const lines = text.split('\n');
+            const lines = text.split('
+');
             const timeReg = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
             lyricsArray = [];
 
@@ -385,6 +344,8 @@
                 div.innerText = lyric.text;
                 lyricsScroll.appendChild(div);
             });
+            // 初始时让第一行居中
+            setTimeout(() => highlightLyric(0), 100);
         }
 
         let currentIndex = -1;
@@ -401,6 +362,7 @@
             }
         }
 
+        // --- 5. 绝对完美的动态居中计算算法（彻底修复行高度不对、掉在底部的Bug） ---
         function highlightLyric(index) {
             const lines = document.querySelectorAll('.lyric-line');
             lines.forEach(line => line.classList.remove('active'));
@@ -408,8 +370,15 @@
             const activeLine = document.getElementById(`line-${index}`);
             if (activeLine) {
                 activeLine.classList.add('active');
-                // 自动滚动 (60px是初始偏移，36px是每行大致高度)
-                const offset = 60 - (index * 36); 
+                
+                const container = document.querySelector('.lyrics-container');
+                const containerHeight = container.clientHeight;
+                const lineTop = activeLine.offsetTop;
+                const lineHeight = activeLine.clientHeight;
+                
+                // 核心黄金公式：让歌词滚动的目标位置 = (视口正中间) - (当前歌词距离顶部的绝对高度) - (当前歌词自身高度的一半)
+                // 这样无论歌词是一行、两行折行，还是开头带歌曲信息，都能实现像素级的丝滑死死居中！
+                const offset = (containerHeight / 2) - lineTop - (lineHeight / 2);
                 lyricsScroll.style.transform = `translateY(${offset}px)`;
             }
         }
